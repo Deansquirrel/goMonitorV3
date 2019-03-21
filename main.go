@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"github.com/Deansquirrel/goMonitorV3/common"
+	"github.com/Deansquirrel/goMonitorV3/configRepository"
 	"github.com/Deansquirrel/goMonitorV3/global"
+	"github.com/Deansquirrel/goToolCommon"
 	log "github.com/Deansquirrel/goToolLog"
 )
 
@@ -26,5 +28,20 @@ func main() {
 	}
 	global.Ctx, global.Cancel = context.WithCancel(context.Background())
 	//==================================================================================================================
+	ic := configRepository.IntConfig{}
+	r := configRepository.NewConfigRepository(&ic)
+	list, err := r.GetConfigList()
+	if err != nil {
+		log.Error(err.Error())
+		return
+	}
+	for _, val := range list {
+		s, err := goToolCommon.GetJsonStr(val)
+		if err != nil {
+			log.Error(err.Error())
+		} else {
+			log.Debug(s)
+		}
+	}
 	//==================================================================================================================
 }
