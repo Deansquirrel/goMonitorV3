@@ -1,4 +1,4 @@
-package taskConfigRepository
+package repository
 
 import (
 	"database/sql"

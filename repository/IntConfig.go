@@ -1,7 +1,8 @@
-package taskConfigRepository
+package repository
 
 import (
 	"database/sql"
+	"fmt"
 	log "github.com/Deansquirrel/goToolLog"
 )
 
@@ -20,10 +21,10 @@ const SqlGetIntTaskConfigById = "" +
 	" INNER JOIN [IntTaskConfig] B ON A.[FId] = B.[FId]" +
 	" WHERE B.[FId]=?"
 
-type IntTaskConfig struct {
+type IntConfig struct {
 }
 
-type IntTaskConfigData struct {
+type IntConfigData struct {
 	FId         string
 	FServer     string
 	FPort       int
@@ -38,70 +39,45 @@ type IntTaskConfigData struct {
 	FMsgContent string
 }
 
-func (config *IntTaskConfigData) IsEqual(c *IntTaskConfigData) bool {
-	if config.FId != c.FId {
+func (icd *IntConfigData) IsEqual(d interface{}) bool {
+	switch c := d.(type) {
+	case IntConfigData:
+		if icd.FId != c.FId ||
+			icd.FServer != c.FServer ||
+			icd.FPort != c.FPort ||
+			icd.FDbName != c.FDbName ||
+			icd.FDbUser != c.FDbUser ||
+			icd.FDbPwd != c.FDbPwd ||
+			icd.FSearch != c.FSearch ||
+			icd.FCron != c.FCron ||
+			icd.FCheckMax != c.FCheckMax ||
+			icd.FCheckMin != c.FCheckMin ||
+			icd.FMsgTitle != c.FMsgTitle ||
+			icd.FMsgContent != c.FMsgContent {
+			return false
+		}
+		return true
+	default:
+		log.Warn(fmt.Sprintf("expr：IntConfigData"))
 		return false
 	}
-	if config.FServer != c.FServer {
-		return false
-	}
-	if config.FPort != c.FPort {
-		return false
-	}
-	if config.FDbName != c.FDbName {
-		return false
-	}
-	if config.FDbUser != c.FDbUser {
-		return false
-	}
-	if config.FDbPwd != c.FDbPwd {
-		return false
-	}
-	if config.FSearch != c.FSearch {
-		return false
-	}
-	if config.FCron != c.FCron {
-		return false
-	}
-	if config.FCheckMax != c.FCheckMax {
-		return false
-	}
-	if config.FCheckMin != c.FCheckMin {
-		return false
-	}
-	if config.FMsgTitle != c.FMsgTitle {
-		return false
-	}
-	if config.FMsgContent != c.FMsgContent {
-		return false
-	}
-	return true
 }
 
-func (itc *IntTaskConfig) GetIntTaskConfigList() ([]*IntTaskConfigData, error) {
-	rows, err := comm.getRowsBySQL(SqlGetIntTaskConfig)
-	if err != nil {
-		log.Error(err.Error())
-		return nil, err
-	}
-	return itc.getIntTaskConfigListByRows(rows)
+func (ic *IntConfig) GetSqlGetConfigList() string {
+	return SqlGetIntTaskConfig
 }
 
-func (itc *IntTaskConfig) GetIntTaskConfig(id string) ([]*IntTaskConfigData, error) {
-	rows, err := comm.getRowsBySQL(SqlGetIntTaskConfigById, id)
-	if err != nil {
-		return nil, err
-	}
-	return itc.getIntTaskConfigListByRows(rows)
+func (ic *IntConfig) GetSqlGetConfig() string {
+	return SqlGetIntTaskConfigById
 }
 
-func (itc *IntTaskConfig) getIntTaskConfigListByRows(rows *sql.Rows) ([]*IntTaskConfigData, error) {
+func (ic *IntConfig) getConfigListByRows(rows *sql.Rows) ([]IConfigData, error) {
 	defer func() {
 		_ = rows.Close()
 	}()
 	var fId, fServer, fDbName, fDbUser, fDbPwd, fSearch, fCron, fMsgTitle, fMsgContent string
 	var fPort, fCheckMax, fCheckMin int
-	resultList := make([]*IntTaskConfigData, 0)
+	resultList := make([]IConfigData, 0)
 	var err error
 	for rows.Next() {
 		err = rows.Scan(
@@ -111,7 +87,7 @@ func (itc *IntTaskConfig) getIntTaskConfigListByRows(rows *sql.Rows) ([]*IntTask
 		if err != nil {
 			break
 		}
-		config := IntTaskConfigData{
+		config := IntConfigData{
 			FId:         fId,
 			FServer:     fServer,
 			FPort:       fPort,

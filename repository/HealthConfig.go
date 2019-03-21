@@ -1,7 +1,8 @@
-package taskConfigRepository
+package repository
 
 import (
 	"database/sql"
+	"fmt"
 	log "github.com/Deansquirrel/goToolLog"
 )
 
@@ -16,57 +17,53 @@ const SqlGetHealthConfigById = "" +
 	" INNER JOIN HealthTaskConfig B on A.FId = B.FId" +
 	" WHERE FId = ?"
 
-type HealthTaskConfig struct {
+type HealthConfig struct {
 }
 
-type HealthTaskConfigData struct {
+type HealthConfigData struct {
 	FId         string
 	FCron       string
 	FMsgTitle   string
 	FMsgContent string
 }
 
-func (config *HealthTaskConfigData) IsEqual(c *HealthTaskConfigData) bool {
-	if config.FId != c.FId ||
-		config.FCron != c.FCron ||
-		config.FMsgTitle != c.FMsgTitle ||
-		config.FMsgContent != c.FMsgContent {
+func (hcd *HealthConfigData) IsEqual(d interface{}) bool {
+	switch c := d.(type) {
+	case HealthConfigData:
+		if hcd.FId != c.FId ||
+			hcd.FCron != c.FCron ||
+			hcd.FMsgTitle != c.FMsgTitle ||
+			hcd.FMsgContent != c.FMsgContent {
+			return false
+		}
+		return true
+	default:
+		log.Warn(fmt.Sprintf("expr：HealthConfigData"))
 		return false
 	}
-	return true
 }
 
-func (htc *HealthTaskConfig) GetHealthConfigList() ([]*HealthTaskConfigData, error) {
-	rows, err := comm.getRowsBySQL(SqlGetHealthConfig)
-	if err != nil {
-		log.Error(err.Error())
-		return nil, err
-	}
-	return htc.getHealthConfigListByRows(rows)
+func (hc *HealthConfig) GetSqlGetConfigList() string {
+	return SqlGetHealthConfig
 }
 
-func (htc *HealthTaskConfig) GetHealthConfig(id string) ([]*HealthTaskConfigData, error) {
-	rows, err := comm.getRowsBySQL(SqlGetHealthConfigById)
-	if err != nil {
-		log.Error(err.Error())
-		return nil, err
-	}
-	return htc.getHealthConfigListByRows(rows)
+func (hc *HealthConfig) GetSqlGetConfig() string {
+	return SqlGetHealthConfigById
 }
 
-func (htc *HealthTaskConfig) getHealthConfigListByRows(rows *sql.Rows) ([]*HealthTaskConfigData, error) {
+func (hc *HealthConfig) getConfigListByRows(rows *sql.Rows) ([]IConfigData, error) {
 	defer func() {
 		_ = rows.Close()
 	}()
 	var fId, fCron, fMsgTitle, fMsgContent string
-	resultList := make([]*HealthTaskConfigData, 0)
+	resultList := make([]IConfigData, 0)
 	var err error
 	for rows.Next() {
 		err = rows.Scan(&fId, &fCron, &fMsgTitle, &fMsgContent)
 		if err != nil {
 			break
 		}
-		config := HealthTaskConfigData{
+		config := HealthConfigData{
 			FId:         fId,
 			FCron:       fCron,
 			FMsgTitle:   fMsgTitle,

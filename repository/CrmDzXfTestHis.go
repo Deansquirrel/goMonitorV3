@@ -1,8 +1,8 @@
-package taskConfigRepository
+package repository
 
 import (
 	"database/sql"
-	"github.com/Deansquirrel/goToolCommon"
+	"errors"
 	"time"
 )
 import log "github.com/Deansquirrel/goToolLog"
@@ -20,6 +20,11 @@ const SqlGetCrmDzXfTestTaskHisByConfigId = "" +
 	"SELECT [FId], [FConfigId], [FUseTime], [FHttpCode], [FContent], [FOprTime]" +
 	" FROM  CrmDzXfTestTaskHis" +
 	" WHERE FConfigId = ?"
+
+const SqlGetCrmDzXfTestTaskHisByTime = "" +
+	"SELECT [FId], [FConfigId], [FUseTime], [FHttpCode], [FContent], [FOprTime]" +
+	" FROM  CrmDzXfTestTaskHis" +
+	" WHERE [FOprTime] >= ? AND [FOprTime] <= ?"
 
 const SqlSetCrmDzXfTestTaskHis = "" +
 	"INSERT INTO CrmDzXfTestTaskHis (FId, FConfigId, FUseTime, FHttpCode, FContent)" +
@@ -41,61 +46,38 @@ type CrmDzXfTestHisData struct {
 	FOprTime  time.Time
 }
 
-func (ch *CrmDzXfTestHis) GetCrmDzXfTestTaskHisList() ([]*CrmDzXfTestHisData, error) {
-	rows, err := comm.getRowsBySQL(SqlGetCrmDzXfTestTaskHis)
-	if err != nil {
-		log.Error(err.Error())
-		return nil, err
-	}
-	return ch.getCrmDzXfTestTaskHisListByRows(rows)
+func (config *CrmDzXfTestHis) GetSqlHisList() string {
+	return SqlGetCrmDzXfTestTaskHis
 }
 
-func (ch *CrmDzXfTestHis) GetCrmDzXfTestTaskHisListById(id string) ([]*CrmDzXfTestHisData, error) {
-	rows, err := comm.getRowsBySQL(SqlGetCrmDzXfTestTaskHisById, id)
-	if err != nil {
-		log.Error(err.Error())
-		return nil, err
-	}
-	return ch.getCrmDzXfTestTaskHisListByRows(rows)
+func (config *CrmDzXfTestHis) GetSqlHisById() string {
+	return SqlGetCrmDzXfTestTaskHisById
 }
 
-func (ch *CrmDzXfTestHis) GetCrmDzXfTestTaskHisListByConfigId(id string) ([]*CrmDzXfTestHisData, error) {
-	rows, err := comm.getRowsBySQL(SqlGetCrmDzXfTestTaskHisByConfigId, id)
-	if err != nil {
-		log.Error(err.Error())
-		return nil, err
-	}
-	return ch.getCrmDzXfTestTaskHisListByRows(rows)
+func (config *CrmDzXfTestHis) GetSqlHisByConfigId() string {
+	return SqlGetCrmDzXfTestTaskHisByConfigId
 }
 
-func (ch *CrmDzXfTestHis) SetCrmDzXfTestTaskHis(data *CrmDzXfTestHisData) error {
-	err := comm.setRowsBySQL(SqlSetCrmDzXfTestTaskHis,
-		data.FId, data.FConfigId, data.FUseTime, data.FHttpCode, data.FContent)
-	if err != nil {
-		log.Error(err.Error())
-		return err
-	}
-	return nil
+func (config *CrmDzXfTestHis) GetSqlHisByTime() string {
+	return SqlGetCrmDzXfTestTaskHisByTime
 }
 
-func (ch *CrmDzXfTestHis) ClearCrmDzXfTestTaskHis(t time.Duration) error {
-	dateP := goToolCommon.GetDateTimeStr(time.Now().Add(-t))
-	err := comm.setRowsBySQL(SqlDelCrmDzXfTestTaskHis, dateP)
-	if err != nil {
-		log.Error(err.Error())
-		return err
-	}
-	return nil
+func (config *CrmDzXfTestHis) GetSqlSetHis() string {
+	return SqlSetCrmDzXfTestTaskHis
 }
 
-func (ch *CrmDzXfTestHis) getCrmDzXfTestTaskHisListByRows(rows *sql.Rows) ([]*CrmDzXfTestHisData, error) {
+func (config *CrmDzXfTestHis) GetSqlClearHis() string {
+	return SqlDelCrmDzXfTestTaskHis
+}
+
+func (config *CrmDzXfTestHis) getHisListByRows(rows *sql.Rows) ([]IHisData, error) {
 	defer func() {
 		_ = rows.Close()
 	}()
 	var fId, fConfigId, fContent string
 	var fUseTime, fHttpCode int
 	var fOprTime time.Time
-	resultList := make([]*CrmDzXfTestHisData, 0)
+	resultList := make([]IHisData, 0)
 	var err error
 	for rows.Next() {
 		err = rows.Scan(&fId, &fConfigId, &fUseTime, &fHttpCode, &fContent, &fOprTime)
@@ -121,4 +103,19 @@ func (ch *CrmDzXfTestHis) getCrmDzXfTestTaskHisListByRows(rows *sql.Rows) ([]*Cr
 		return nil, rows.Err()
 	}
 	return resultList, nil
+}
+
+func (config *CrmDzXfTestHis) getHisSetArgs(data interface{}) ([]interface{}, error) {
+	switch f := data.(type) {
+	case CrmDzXfTestHisData:
+		result := make([]interface{}, 0)
+		result = append(result, f.FId)
+		result = append(result, f.FConfigId)
+		result = append(result, f.FUseTime)
+		result = append(result, f.FHttpCode)
+		result = append(result, f.FContent)
+		return result, nil
+	default:
+		return nil, errors.New("CrmDzXfTestHis getHisSetArgs 参数类型错误")
+	}
 }

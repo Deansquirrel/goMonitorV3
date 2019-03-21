@@ -1,7 +1,8 @@
-package taskConfigRepository
+package repository
 
 import (
 	"database/sql"
+	"fmt"
 	log "github.com/Deansquirrel/goToolLog"
 )
 
@@ -16,10 +17,10 @@ const SqlGetWebStateTaskConfigById = "" +
 	" INNER JOIN WebStateTaskConfig B ON A.FID = B.FId" +
 	" WHERE B.FId = ?"
 
-type WebStateTaskConfig struct {
+type WebStateConfig struct {
 }
 
-type WebStateTaskConfigData struct {
+type WebStateConfigData struct {
 	FId         string
 	FUrl        string
 	FCron       string
@@ -27,48 +28,43 @@ type WebStateTaskConfigData struct {
 	FMsgContent string
 }
 
-func (config *WebStateTaskConfigData) IsEqual(c *WebStateTaskConfigData) bool {
-	if config.FId != c.FId ||
-		config.FUrl != c.FUrl ||
-		config.FCron != c.FCron ||
-		config.FMsgTitle != c.FMsgTitle ||
-		config.FMsgContent != c.FMsgContent {
+func (config *WebStateConfigData) IsEqual(d interface{}) bool {
+	switch c := d.(type) {
+	case WebStateConfigData:
+		if config.FId != c.FId ||
+			config.FCron != c.FCron ||
+			config.FMsgTitle != c.FMsgTitle ||
+			config.FMsgContent != c.FMsgContent {
+			return false
+		}
+		return true
+	default:
+		log.Warn(fmt.Sprintf("expr：WebStateConfigData"))
 		return false
 	}
-	return true
 }
 
-func (wtc *WebStateTaskConfig) GetWebStateTaskConfigList() ([]*WebStateTaskConfigData, error) {
-	rows, err := comm.getRowsBySQL(SqlGetWebStateTaskConfig)
-	if err != nil {
-		log.Error(err.Error())
-		return nil, err
-	}
-	return wtc.getWebStateConfigListByRows(rows)
+func (wsc *WebStateConfig) GetSqlGetConfigList() string {
+	return SqlGetWebStateTaskConfig
 }
 
-func (wtc *WebStateTaskConfig) GetWebStateTaskConfig(id string) ([]*WebStateTaskConfigData, error) {
-	rows, err := comm.getRowsBySQL(SqlGetWebStateTaskConfigById, id)
-	if err != nil {
-		log.Error(err.Error())
-		return nil, err
-	}
-	return wtc.getWebStateConfigListByRows(rows)
+func (wsc *WebStateConfig) GetSqlGetConfig() string {
+	return SqlGetWebStateTaskConfigById
 }
 
-func (wtc *WebStateTaskConfig) getWebStateConfigListByRows(rows *sql.Rows) ([]*WebStateTaskConfigData, error) {
+func (wsc *WebStateConfig) getConfigListByRows(rows *sql.Rows) ([]IConfigData, error) {
 	defer func() {
 		_ = rows.Close()
 	}()
 	var fId, fUrl, fCron, fMsgTitle, fMsgContent string
-	resultList := make([]*WebStateTaskConfigData, 0)
+	resultList := make([]IConfigData, 0)
 	var err error
 	for rows.Next() {
 		err = rows.Scan(&fId, &fUrl, &fCron, &fMsgTitle, &fMsgContent)
 		if err != nil {
 			break
 		}
-		config := WebStateTaskConfigData{
+		config := WebStateConfigData{
 			FId:         fId,
 			FUrl:        fUrl,
 			FCron:       fCron,

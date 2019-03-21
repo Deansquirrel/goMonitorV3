@@ -1,7 +1,8 @@
-package taskConfigRepository
+package repository
 
 import (
 	"database/sql"
+	"fmt"
 	log "github.com/Deansquirrel/goToolLog"
 )
 
@@ -16,10 +17,10 @@ const SqlGetCrmDzXfTestTaskConfigById = "" +
 	" INNER JOIN CrmDzXfTestTaskConfig B ON A.[FId] = B.[FId]" +
 	" WHERE B.FId = ?"
 
-type CrmDzXfTestTaskConfig struct {
+type CrmDzXfTestConfig struct {
 }
 
-type CrmDzXfTestTaskConfigData struct {
+type CrmDzXfTestConfigData struct {
 	FId           string
 	FCron         string
 	FMsgTitle     string
@@ -29,51 +30,47 @@ type CrmDzXfTestTaskConfigData struct {
 	FPassportType int
 }
 
-func (config *CrmDzXfTestTaskConfigData) IsEqual(c *CrmDzXfTestTaskConfigData) bool {
-	if config.FId != c.FId ||
-		config.FCron != c.FCron ||
-		config.FMsgTitle != c.FMsgTitle ||
-		config.FMsgContent != c.FMsgContent ||
-		config.FAddress != c.FAddress ||
-		config.FPassport != c.FPassport ||
-		config.FPassportType != c.FPassportType {
+func (configData *CrmDzXfTestConfigData) IsEqual(d interface{}) bool {
+	switch c := d.(type) {
+	case CrmDzXfTestConfigData:
+		if configData.FId != c.FId ||
+			configData.FCron != c.FCron ||
+			configData.FMsgTitle != c.FMsgTitle ||
+			configData.FMsgContent != c.FMsgContent ||
+			configData.FAddress != c.FAddress ||
+			configData.FPassport != c.FPassport ||
+			configData.FPassportType != c.FPassportType {
+			return false
+		}
+		return true
+	default:
+		log.Warn(fmt.Sprintf("expr：CrmDzXfTestConfigData"))
 		return false
 	}
-	return true
 }
 
-func (tc *CrmDzXfTestTaskConfig) GetCrmDzTestTaskConfigList() ([]*CrmDzXfTestTaskConfigData, error) {
-	rows, err := comm.getRowsBySQL(SqlGetCrmDzXfTestTaskConfig)
-	if err != nil {
-		log.Error(err.Error())
-		return nil, err
-	}
-	return tc.getCrmDzXfTestTaskConfigListByRows(rows)
+func (config *CrmDzXfTestConfig) GetSqlGetConfigList() string {
+	return SqlGetCrmDzXfTestTaskConfig
 }
 
-func (tc *CrmDzXfTestTaskConfig) GetCrmDzTestTaskConfig(id string) ([]*CrmDzXfTestTaskConfigData, error) {
-	rows, err := comm.getRowsBySQL(SqlGetCrmDzXfTestTaskConfigById, id)
-	if err != nil {
-		log.Error(err.Error())
-		return nil, err
-	}
-	return tc.getCrmDzXfTestTaskConfigListByRows(rows)
+func (config *CrmDzXfTestConfig) GetSqlGetConfig() string {
+	return SqlGetCrmDzXfTestTaskConfigById
 }
 
-func (tc *CrmDzXfTestTaskConfig) getCrmDzXfTestTaskConfigListByRows(rows *sql.Rows) ([]*CrmDzXfTestTaskConfigData, error) {
+func (config *CrmDzXfTestConfig) getConfigListByRows(rows *sql.Rows) ([]IConfigData, error) {
 	defer func() {
 		_ = rows.Close()
 	}()
 	var fId, fCron, fMsgTitle, fMsgContent, fAddress, fPassport string
 	var fPassportType int
-	resultList := make([]*CrmDzXfTestTaskConfigData, 0)
+	resultList := make([]IConfigData, 0)
 	var err error
 	for rows.Next() {
 		err = rows.Scan(&fId, &fCron, &fMsgTitle, &fMsgContent, &fAddress, &fPassport, &fPassportType)
 		if err != nil {
 			break
 		}
-		config := CrmDzXfTestTaskConfigData{
+		config := CrmDzXfTestConfigData{
 			FId:           fId,
 			FCron:         fCron,
 			FMsgTitle:     fMsgTitle,
