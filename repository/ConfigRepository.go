@@ -1,9 +1,9 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 	log "github.com/Deansquirrel/goToolLog"
-	"github.com/kataras/iris/core/errors"
 )
 
 type configRepository struct {

@@ -26,7 +26,7 @@ type dingTalkTextMsg struct {
 	IsAtAll    bool     `json:"isatall"`
 }
 
-func NewDingTalkRobot(configData *repository.DingTalkRobotConfigData) *dingTalkRobot {
+func newDingTalkRobot(configData *repository.DingTalkRobotConfigData) *dingTalkRobot {
 	return &dingTalkRobot{
 		configData: configData,
 	}

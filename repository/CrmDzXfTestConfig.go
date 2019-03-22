@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	log "github.com/Deansquirrel/goToolLog"
+	"reflect"
 )
 
 const SqlGetCrmDzXfTestTaskConfig = "" +
@@ -38,9 +39,13 @@ func (configData *CrmDzXfTestConfigData) GetConfigId() string {
 	return configData.FId
 }
 
-func (configData *CrmDzXfTestConfigData) IsEqual(d interface{}) bool {
-	switch c := d.(type) {
-	case CrmDzXfTestConfigData:
+func (configData *CrmDzXfTestConfigData) IsEqual(d IConfigData) bool {
+	switch reflect.TypeOf(d).String() {
+	case "*repository.CrmDzXfTestConfigData":
+		c, ok := d.(*CrmDzXfTestConfigData)
+		if !ok {
+			return false
+		}
 		if configData.FId != c.FId ||
 			configData.FCron != c.FCron ||
 			configData.FMsgTitle != c.FMsgTitle ||

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	log "github.com/Deansquirrel/goToolLog"
+	"reflect"
 )
 
 const SqlGetIntTaskDConfig = "" +
@@ -31,9 +32,13 @@ func (configData *IntDConfigData) GetConfigId() string {
 	return configData.FId
 }
 
-func (configData *IntDConfigData) IsEqual(d interface{}) bool {
-	switch c := d.(type) {
-	case IntDConfigData:
+func (configData *IntDConfigData) IsEqual(d IConfigData) bool {
+	switch reflect.TypeOf(d).String() {
+	case "*repository.IntDConfigData":
+		c, ok := d.(*IntDConfigData)
+		if !ok {
+			return false
+		}
 		if configData.FId != c.FId ||
 			configData.FMsgSearch != c.FMsgSearch {
 			return false

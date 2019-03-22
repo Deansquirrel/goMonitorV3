@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	log "github.com/Deansquirrel/goToolLog"
+	"reflect"
 )
 
 const SqlGetHealthConfig = "" +
@@ -35,9 +36,13 @@ func (configData *HealthConfigData) GetConfigId() string {
 	return configData.FId
 }
 
-func (configData *HealthConfigData) IsEqual(d interface{}) bool {
-	switch c := d.(type) {
-	case HealthConfigData:
+func (configData *HealthConfigData) IsEqual(d IConfigData) bool {
+	switch reflect.TypeOf(d).String() {
+	case "*repository.HealthConfigData":
+		c, ok := d.(*HealthConfigData)
+		if !ok {
+			return false
+		}
 		if configData.FId != c.FId ||
 			configData.FCron != c.FCron ||
 			configData.FMsgTitle != c.FMsgTitle ||

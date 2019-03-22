@@ -12,5 +12,5 @@ type IConfig interface {
 type IConfigData interface {
 	GetConfigId() string
 	GetSpec() string
-	IsEqual(c interface{}) bool
+	IsEqual(c IConfigData) bool
 }

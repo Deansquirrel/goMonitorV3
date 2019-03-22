@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"reflect"
 	"time"
 )
 
@@ -107,15 +108,20 @@ func (ih *IntHis) getHisListByRows(rows *sql.Rows) ([]IHisData, error) {
 	return resultList, nil
 }
 
-func (ih *IntHis) getHisSetArgs(data interface{}) ([]interface{}, error) {
-	switch f := data.(type) {
-	case IntHisData:
-		result := make([]interface{}, 0)
-		result = append(result, f.FId)
-		result = append(result, f.FConfigId)
-		result = append(result, f.FNum)
-		result = append(result, f.FContent)
-		return result, nil
+func (ih *IntHis) getHisSetArgs(data IHisData) ([]interface{}, error) {
+	switch reflect.TypeOf(data).String() {
+	case "*repository.IntHisData":
+		iHisData, ok := data.(*IntHisData)
+		if ok {
+			result := make([]interface{}, 0)
+			result = append(result, iHisData.FId)
+			result = append(result, iHisData.FConfigId)
+			result = append(result, iHisData.FNum)
+			result = append(result, iHisData.FContent)
+			return result, nil
+		} else {
+			return nil, errors.New("强制类型转换失败[IntHisData]")
+		}
 	default:
 		return nil, errors.New("IntHis getHisSetArgs 参数类型错误")
 	}

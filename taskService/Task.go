@@ -52,17 +52,8 @@ func (t *task) StartTask() error {
 }
 
 func (t *task) addJob(iConfig repository.IConfigData) error {
-	//------------------------------------------------------------------------------------------------------------------
-	configStr, err := goToolCommon.GetJsonStr(iConfig)
-	if err != nil {
-		log.Warn(fmt.Sprintf("Add Task，转换配置内容时遇到错误:%s", configStr))
-	} else {
-		log.Warn(fmt.Sprintf("Add Task:%s", configStr))
-	}
-	//------------------------------------------------------------------------------------------------------------------
 	w, err := worker.NewWorker(iConfig)
 	if err != nil {
-		//log.Error(fmt.Sprintf("Add Job 遇到错误%s，配置ID：%s",err.Error(),iConfig.GetConfigId()))
 		AddTask(iConfig.GetConfigId(), &TaskCache{
 			Config:    iConfig,
 			Cron:      nil,
@@ -178,7 +169,11 @@ func (t *task) refreshConfigWorker() error {
 	}
 	idList := make([]string, 0)
 	idMap := make(map[string]repository.IConfigData, 0)
-	for _, config := range list {
+	for _, iConfig := range list {
+		config, ok := iConfig.(repository.IConfigData)
+		if !ok {
+			return errors.New("不是有效的IConfigData")
+		}
 		idList = append(idList, config.GetConfigId())
 		idMap[config.GetConfigId()] = config
 	}

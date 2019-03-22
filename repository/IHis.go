@@ -13,7 +13,7 @@ type IHis interface {
 	GetSqlClearHis() string
 
 	getHisListByRows(rows *sql.Rows) ([]IHisData, error)
-	getHisSetArgs(data interface{}) ([]interface{}, error)
+	getHisSetArgs(data IHisData) ([]interface{}, error)
 }
 
 type IHisData interface {

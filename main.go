@@ -32,8 +32,6 @@ func main() {
 	err = task.StartTask()
 	if err != nil {
 		log.Debug(err.Error())
-	} else {
-		log.Debug("Done")
 	}
 
 	select {

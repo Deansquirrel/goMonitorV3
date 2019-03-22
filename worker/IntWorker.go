@@ -8,6 +8,7 @@ import (
 	"github.com/Deansquirrel/goToolCommon"
 	log "github.com/Deansquirrel/goToolLog"
 	"github.com/Deansquirrel/goToolMSSql"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -41,8 +42,12 @@ func (iw *intWorker) GetMsg() (string, repository.IHisData) {
 		msg = comm.getMsg(iw.intConfigData.FMsgTitle,
 			strings.Replace(iw.intConfigData.FMsgContent, "title", strconv.Itoa(num), -1))
 		dMsg := iw.getDMsg()
-		if dMsg != "" {
-			msg = msg + "\n" + dMsg
+		if msg != "" {
+			if dMsg != "" {
+				msg = msg + "\n" + "--------------------" + "\n" + dMsg
+			}
+		} else {
+			msg = dMsg
 		}
 		msg = iw.formatMsg(msg)
 	}
@@ -77,11 +82,15 @@ func (iw *intWorker) getDMsg() string {
 	if dConfig == nil {
 		return ""
 	}
-	var v interface{}
-	v = dConfig
-	switch c := v.(type) {
-	case repository.IntDConfigData:
-		return iw.getSingleDMsg(c.FMsgSearch)
+	switch reflect.TypeOf(dConfig).String() {
+	case "*repository.IntDConfigData":
+		c, ok := dConfig.(*repository.IntDConfigData)
+		if ok {
+			return iw.getSingleDMsg(c.FMsgSearch)
+		} else {
+			return "强制类型转换失败[IntConfigData]"
+		}
+
 	default:
 		log.Error(fmt.Sprintf("获取的明细配置类型异常，expr：IntDConfigData"))
 		return ""
@@ -138,20 +147,31 @@ func (iw *intWorker) getSingleDMsg(search string) string {
 	return result
 }
 
-func (iw *intWorker) SaveSearchResult(data interface{}) {
-	switch d := data.(type) {
-	case repository.IntHisData:
+func (iw *intWorker) SaveSearchResult(data repository.IHisData) error {
+	switch reflect.TypeOf(data).String() {
+	case "*repository.IntHisData":
 		rep := repository.NewHisRepository(&repository.IntHis{})
-		err := rep.SetHis(d)
-		if err != nil {
+		iHisData, ok := data.(*repository.IntHisData)
+		if ok {
+			err := rep.SetHis(iHisData)
+			if err != nil {
+				s, _ := goToolCommon.GetJsonStr(data)
+				errMsg := fmt.Sprintf("保存查询结果时遇到错误：%s，待保存内容：%s", err.Error(), s)
+				log.Error(errMsg)
+				return errors.New(errMsg)
+			}
+			return nil
+		} else {
 			s, _ := goToolCommon.GetJsonStr(data)
-			log.Error(fmt.Sprintf("保存查询结果时遇到错误：%s，待保存内容：%s", err.Error(), s))
+			errMsg := fmt.Sprintf("强制类型转换失败[IntHisData]，待保存内容：%s", s)
+			log.Error(errMsg)
+			return errors.New(errMsg)
 		}
-		return
 	default:
 		s, _ := goToolCommon.GetJsonStr(data)
-		log.Error(fmt.Sprintf("历史数据类型异常，exp：IntHisData，待保存内容：%s", s))
-		return
+		errMsg := fmt.Sprintf("历史数据类型异常，exp：IntHisData，待保存内容：%s", s)
+		log.Error(errMsg)
+		return errors.New(errMsg)
 	}
 }
 
