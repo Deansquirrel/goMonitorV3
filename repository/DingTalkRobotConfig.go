@@ -34,6 +34,14 @@ type DingTalkRobotConfigData struct {
 	FIsAtAll    int
 }
 
+func (configData *DingTalkRobotConfigData) GetSpec() string {
+	return ""
+}
+
+func (configData *DingTalkRobotConfigData) GetConfigId() string {
+	return configData.FId
+}
+
 func (configData *DingTalkRobotConfigData) IsEqual(d interface{}) bool {
 	switch c := d.(type) {
 	case DingTalkRobotConfigData:

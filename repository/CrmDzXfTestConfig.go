@@ -30,6 +30,14 @@ type CrmDzXfTestConfigData struct {
 	FPassportType int
 }
 
+func (configData *CrmDzXfTestConfigData) GetSpec() string {
+	return configData.FCron
+}
+
+func (configData *CrmDzXfTestConfigData) GetConfigId() string {
+	return configData.FId
+}
+
 func (configData *CrmDzXfTestConfigData) IsEqual(d interface{}) bool {
 	switch c := d.(type) {
 	case CrmDzXfTestConfigData:

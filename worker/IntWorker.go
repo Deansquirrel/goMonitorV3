@@ -17,7 +17,7 @@ type intWorker struct {
 	intConfigData *repository.IntConfigData
 }
 
-func NewIntWorker(intConfigData *repository.IntConfigData) *intWorker {
+func newIntWorker(intConfigData *repository.IntConfigData) *intWorker {
 	return &intWorker{
 		intConfigData: intConfigData,
 	}

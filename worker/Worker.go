@@ -14,8 +14,8 @@ type worker struct {
 	iWorker  IWorker
 }
 
-func (w *worker) NewWorker(config interface{}) (*worker, error) {
-	id, workerRunner, err := w.getWorker(config)
+func NewWorker(config interface{}) (*worker, error) {
+	id, workerRunner, err := getWorker(config)
 	if err != nil {
 		return nil, err
 	}
@@ -24,6 +24,21 @@ func (w *worker) NewWorker(config interface{}) (*worker, error) {
 		config:   config,
 		iWorker:  workerRunner,
 	}, nil
+}
+
+func getWorker(config interface{}) (string, IWorker, error) {
+	switch c := config.(type) {
+	case repository.CrmDzXfTestConfigData:
+		return "", nil, nil
+	case repository.HealthConfigData:
+		return "", nil, nil
+	case repository.IntConfigData:
+		return c.FId, newIntWorker(&c), nil
+	case repository.WebStateConfigData:
+		return "", nil, nil
+	default:
+		return "", nil, errors.New("未预知的配置类型")
+	}
 }
 
 func (w *worker) Run() {
@@ -46,21 +61,6 @@ func (w *worker) Run() {
 		if err != nil {
 			log.Error(fmt.Sprintf("发送消息时遇到错误:%s，消息未发送：%s", err.Error(), msg))
 		}
-	}
-}
-
-func (w *worker) getWorker(config interface{}) (string, IWorker, error) {
-	switch c := config.(type) {
-	case repository.CrmDzXfTestConfigData:
-		return "", nil, nil
-	case repository.HealthConfigData:
-		return "", nil, nil
-	case repository.IntConfigData:
-		return c.FId, NewIntWorker(&c), nil
-	case repository.WebStateConfigData:
-		return "", nil, nil
-	default:
-		return "", nil, errors.New("未预知的配置类型")
 	}
 }
 

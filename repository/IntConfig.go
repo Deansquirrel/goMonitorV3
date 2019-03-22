@@ -39,21 +39,29 @@ type IntConfigData struct {
 	FMsgContent string
 }
 
-func (icd *IntConfigData) IsEqual(d interface{}) bool {
+func (configData *IntConfigData) GetSpec() string {
+	return configData.FCron
+}
+
+func (configData *IntConfigData) GetConfigId() string {
+	return configData.FId
+}
+
+func (configData *IntConfigData) IsEqual(d interface{}) bool {
 	switch c := d.(type) {
 	case IntConfigData:
-		if icd.FId != c.FId ||
-			icd.FServer != c.FServer ||
-			icd.FPort != c.FPort ||
-			icd.FDbName != c.FDbName ||
-			icd.FDbUser != c.FDbUser ||
-			icd.FDbPwd != c.FDbPwd ||
-			icd.FSearch != c.FSearch ||
-			icd.FCron != c.FCron ||
-			icd.FCheckMax != c.FCheckMax ||
-			icd.FCheckMin != c.FCheckMin ||
-			icd.FMsgTitle != c.FMsgTitle ||
-			icd.FMsgContent != c.FMsgContent {
+		if configData.FId != c.FId ||
+			configData.FServer != c.FServer ||
+			configData.FPort != c.FPort ||
+			configData.FDbName != c.FDbName ||
+			configData.FDbUser != c.FDbUser ||
+			configData.FDbPwd != c.FDbPwd ||
+			configData.FSearch != c.FSearch ||
+			configData.FCron != c.FCron ||
+			configData.FCheckMax != c.FCheckMax ||
+			configData.FCheckMin != c.FCheckMin ||
+			configData.FMsgTitle != c.FMsgTitle ||
+			configData.FMsgContent != c.FMsgContent {
 			return false
 		}
 		return true

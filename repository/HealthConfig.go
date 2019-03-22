@@ -27,13 +27,21 @@ type HealthConfigData struct {
 	FMsgContent string
 }
 
-func (hcd *HealthConfigData) IsEqual(d interface{}) bool {
+func (configData *HealthConfigData) GetSpec() string {
+	return configData.FCron
+}
+
+func (configData *HealthConfigData) GetConfigId() string {
+	return configData.FId
+}
+
+func (configData *HealthConfigData) IsEqual(d interface{}) bool {
 	switch c := d.(type) {
 	case HealthConfigData:
-		if hcd.FId != c.FId ||
-			hcd.FCron != c.FCron ||
-			hcd.FMsgTitle != c.FMsgTitle ||
-			hcd.FMsgContent != c.FMsgContent {
+		if configData.FId != c.FId ||
+			configData.FCron != c.FCron ||
+			configData.FMsgTitle != c.FMsgTitle ||
+			configData.FMsgContent != c.FMsgContent {
 			return false
 		}
 		return true

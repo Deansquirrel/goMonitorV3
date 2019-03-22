@@ -28,13 +28,21 @@ type WebStateConfigData struct {
 	FMsgContent string
 }
 
-func (config *WebStateConfigData) IsEqual(d interface{}) bool {
+func (configData *WebStateConfigData) GetSpec() string {
+	return configData.FCron
+}
+
+func (configData *WebStateConfigData) GetConfigId() string {
+	return configData.FId
+}
+
+func (configData *WebStateConfigData) IsEqual(d interface{}) bool {
 	switch c := d.(type) {
 	case WebStateConfigData:
-		if config.FId != c.FId ||
-			config.FCron != c.FCron ||
-			config.FMsgTitle != c.FMsgTitle ||
-			config.FMsgContent != c.FMsgContent {
+		if configData.FId != c.FId ||
+			configData.FCron != c.FCron ||
+			configData.FMsgTitle != c.FMsgTitle ||
+			configData.FMsgContent != c.FMsgContent {
 			return false
 		}
 		return true

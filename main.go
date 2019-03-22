@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/Deansquirrel/goMonitorV3/common"
 	"github.com/Deansquirrel/goMonitorV3/global"
+	"github.com/Deansquirrel/goMonitorV3/repository"
+	"github.com/Deansquirrel/goMonitorV3/taskService"
 	log "github.com/Deansquirrel/goToolLog"
 )
 
@@ -25,5 +27,18 @@ func main() {
 		return
 	}
 	global.Ctx, global.Cancel = context.WithCancel(context.Background())
+
+	task := taskService.NewTask(&repository.IntConfig{}, &repository.IntHis{}, &taskService.IntTask{})
+	err = task.StartTask()
+	if err != nil {
+		log.Debug(err.Error())
+	} else {
+		log.Debug("Done")
+	}
+
+	select {
+	case <-global.Ctx.Done():
+	}
+
 	//==================================================================================================================
 }

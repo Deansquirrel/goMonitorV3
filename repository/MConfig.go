@@ -22,6 +22,14 @@ type MConfigData struct {
 	FRemark string
 }
 
+func (configData *MConfigData) GetSpec() string {
+	return ""
+}
+
+func (configData *MConfigData) GetConfigId() string {
+	return configData.FId
+}
+
 func (configData *MConfigData) IsEqual(d interface{}) bool {
 	switch c := d.(type) {
 	case MConfigData:

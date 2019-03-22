@@ -23,11 +23,19 @@ type IntDConfigData struct {
 	FMsgSearch string
 }
 
-func (icd *IntDConfigData) IsEqual(d interface{}) bool {
+func (configData *IntDConfigData) GetSpec() string {
+	return ""
+}
+
+func (configData *IntDConfigData) GetConfigId() string {
+	return configData.FId
+}
+
+func (configData *IntDConfigData) IsEqual(d interface{}) bool {
 	switch c := d.(type) {
 	case IntDConfigData:
-		if icd.FId != c.FId ||
-			icd.FMsgSearch != c.FMsgSearch {
+		if configData.FId != c.FId ||
+			configData.FMsgSearch != c.FMsgSearch {
 			return false
 		}
 		return true
