@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"fmt"
+	"github.com/Deansquirrel/goMonitorV3/object"
 	log "github.com/Deansquirrel/goToolLog"
 )
 
@@ -10,13 +11,37 @@ type configRepository struct {
 	Config IConfig
 }
 
-func NewConfigRepository(config IConfig) *configRepository {
+func NewMConfigRepository() *configRepository {
+	return newConfigRepository(&mConfig{})
+}
+
+func NewIntConfigRepository() *configRepository {
+	return newConfigRepository(&intConfig{})
+}
+
+func NewIntDConfigRepository() *configRepository {
+	return newConfigRepository(&intDConfig{})
+}
+
+func NewHealthConfigRepository() *configRepository {
+	return newConfigRepository(&healthConfig{})
+}
+
+func NewWebStateConfigRepository() *configRepository {
+	return newConfigRepository(&webStateConfig{})
+}
+
+func NewCrmDzXfTestConfigRepository() *configRepository {
+	return newConfigRepository(&crmDzXfTestConfig{})
+}
+
+func newConfigRepository(config IConfig) *configRepository {
 	return &configRepository{
 		Config: config,
 	}
 }
 
-func (cr *configRepository) GetConfigList() ([]IConfigData, error) {
+func (cr *configRepository) GetConfigList() ([]object.IConfigData, error) {
 	rows, err := comm.getRowsBySQL(cr.Config.GetSqlGetConfigList())
 	if err != nil {
 		log.Error(err.Error())
@@ -25,7 +50,7 @@ func (cr *configRepository) GetConfigList() ([]IConfigData, error) {
 	return cr.Config.getConfigListByRows(rows)
 }
 
-func (cr *configRepository) GetConfig(id string) (IConfigData, error) {
+func (cr *configRepository) GetConfig(id string) (object.IConfigData, error) {
 	rows, err := comm.getRowsBySQL(cr.Config.GetSqlGetConfig(), id)
 	if err != nil {
 		log.Error(err.Error())

@@ -17,6 +17,40 @@ const (
 	HttpConnectTimeout = 30
 )
 
+type ConfigType int
+
+const (
+	CMConfig ConfigType = iota
+	CInt
+	CCrmDzXf
+	CHealth
+	CWebState
+)
+
+type NotifyType int
+
+const (
+	NotifyDingTalkRobot NotifyType = iota
+)
+
+type WorkerType int
+
+const (
+	WMConfig WorkerType = iota
+	WCrmDzXf
+	WHealth
+	WWebState
+)
+
+type HisType int
+
+const (
+	HInt HisType = iota
+	HCrmDzXf
+	HHealth
+	HWebState
+)
+
 var SysConfig *config.SysConfig
 var Ctx context.Context
 var Cancel func()

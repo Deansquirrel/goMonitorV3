@@ -1,10 +1,12 @@
 package worker
 
-import "github.com/Deansquirrel/goMonitorV3/repository"
+import (
+	"github.com/Deansquirrel/goMonitorV3/object"
+)
 
 type IWorker interface {
-	GetMsg() (string, repository.IHisData)
-	SaveSearchResult(data repository.IHisData) error
+	GetMsg() (string, object.IHisData)
+	SaveSearchResult(data object.IHisData) error
 
 	formatMsg(msg string) string
 }

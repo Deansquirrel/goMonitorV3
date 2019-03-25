@@ -2,9 +2,8 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
+	"github.com/Deansquirrel/goMonitorV3/object"
 	log "github.com/Deansquirrel/goToolLog"
-	"reflect"
 )
 
 const SqlGetWebStateTaskConfig = "" +
@@ -18,66 +17,30 @@ const SqlGetWebStateTaskConfigById = "" +
 	" INNER JOIN WebStateTaskConfig B ON A.FID = B.FId" +
 	" WHERE B.FId = ?"
 
-type WebStateConfig struct {
+type webStateConfig struct {
 }
 
-type WebStateConfigData struct {
-	FId         string
-	FUrl        string
-	FCron       string
-	FMsgTitle   string
-	FMsgContent string
-}
-
-func (configData *WebStateConfigData) GetSpec() string {
-	return configData.FCron
-}
-
-func (configData *WebStateConfigData) GetConfigId() string {
-	return configData.FId
-}
-
-func (configData *WebStateConfigData) IsEqual(d IConfigData) bool {
-	switch reflect.TypeOf(d).String() {
-	case "*repository.WebStateConfigData":
-		c, ok := d.(*WebStateConfigData)
-		if !ok {
-			return false
-		}
-		if configData.FId != c.FId ||
-			configData.FCron != c.FCron ||
-			configData.FMsgTitle != c.FMsgTitle ||
-			configData.FMsgContent != c.FMsgContent {
-			return false
-		}
-		return true
-	default:
-		log.Warn(fmt.Sprintf("expr：WebStateConfigData"))
-		return false
-	}
-}
-
-func (wsc *WebStateConfig) GetSqlGetConfigList() string {
+func (wsc *webStateConfig) GetSqlGetConfigList() string {
 	return SqlGetWebStateTaskConfig
 }
 
-func (wsc *WebStateConfig) GetSqlGetConfig() string {
+func (wsc *webStateConfig) GetSqlGetConfig() string {
 	return SqlGetWebStateTaskConfigById
 }
 
-func (wsc *WebStateConfig) getConfigListByRows(rows *sql.Rows) ([]IConfigData, error) {
+func (wsc *webStateConfig) getConfigListByRows(rows *sql.Rows) ([]object.IConfigData, error) {
 	defer func() {
 		_ = rows.Close()
 	}()
 	var fId, fUrl, fCron, fMsgTitle, fMsgContent string
-	resultList := make([]IConfigData, 0)
+	resultList := make([]object.IConfigData, 0)
 	var err error
 	for rows.Next() {
 		err = rows.Scan(&fId, &fUrl, &fCron, &fMsgTitle, &fMsgContent)
 		if err != nil {
 			break
 		}
-		config := WebStateConfigData{
+		config := object.WebStateConfigData{
 			FId:         fId,
 			FUrl:        fUrl,
 			FCron:       fCron,

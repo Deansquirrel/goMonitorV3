@@ -1,34 +1,22 @@
 package notify
 
 import (
-	"github.com/Deansquirrel/goMonitorV3/repository"
+	"github.com/Deansquirrel/goMonitorV3/object"
 	"github.com/kataras/iris/core/errors"
 	"reflect"
 )
 
 type notify struct {
-	iNotify repository.INotifyData
 }
 
-func NewNotify(iNotify repository.INotifyData) *notify {
-	return &notify{
-		iNotify: iNotify,
-	}
+func NewNotify() *notify {
+	return &notify{}
 }
 
-//func (n *notify) GetNotify(id string)(INotify,error){
-//	rep := repository.NewNotifyRepository(n.iNotify)
-//	iNotify,err := rep.GetNotify(id)
-//	if err != nil {
-//		return nil,err
-//	}
-//	return n.getNotify(iNotify)
-//}
-
-func (n *notify) GetNotify(iNotify repository.INotifyData) (INotify, error) {
+func (n *notify) GetNotify(iNotify object.INotifyData) (INotify, error) {
 	switch reflect.TypeOf(iNotify).String() {
-	case "*repository.DingTalkRobotConfigData":
-		dingTalkRobotConfigData, ok := iNotify.(*repository.DingTalkRobotConfigData)
+	case "*object.DingTalkRobotConfigData":
+		dingTalkRobotConfigData, ok := iNotify.(*object.DingTalkRobotNotifyData)
 		if ok {
 			return newDingTalkRobot(dingTalkRobotConfigData), nil
 		} else {

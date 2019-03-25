@@ -2,9 +2,8 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
+	"github.com/Deansquirrel/goMonitorV3/object"
 	log "github.com/Deansquirrel/goToolLog"
-	"reflect"
 )
 
 const SqlGetCrmDzXfTestTaskConfig = "" +
@@ -18,72 +17,31 @@ const SqlGetCrmDzXfTestTaskConfigById = "" +
 	" INNER JOIN CrmDzXfTestTaskConfig B ON A.[FId] = B.[FId]" +
 	" WHERE B.FId = ?"
 
-type CrmDzXfTestConfig struct {
+type crmDzXfTestConfig struct {
 }
 
-type CrmDzXfTestConfigData struct {
-	FId           string
-	FCron         string
-	FMsgTitle     string
-	FMsgContent   string
-	FAddress      string
-	FPassport     string
-	FPassportType int
-}
-
-func (configData *CrmDzXfTestConfigData) GetSpec() string {
-	return configData.FCron
-}
-
-func (configData *CrmDzXfTestConfigData) GetConfigId() string {
-	return configData.FId
-}
-
-func (configData *CrmDzXfTestConfigData) IsEqual(d IConfigData) bool {
-	switch reflect.TypeOf(d).String() {
-	case "*repository.CrmDzXfTestConfigData":
-		c, ok := d.(*CrmDzXfTestConfigData)
-		if !ok {
-			return false
-		}
-		if configData.FId != c.FId ||
-			configData.FCron != c.FCron ||
-			configData.FMsgTitle != c.FMsgTitle ||
-			configData.FMsgContent != c.FMsgContent ||
-			configData.FAddress != c.FAddress ||
-			configData.FPassport != c.FPassport ||
-			configData.FPassportType != c.FPassportType {
-			return false
-		}
-		return true
-	default:
-		log.Warn(fmt.Sprintf("expr：CrmDzXfTestConfigData"))
-		return false
-	}
-}
-
-func (config *CrmDzXfTestConfig) GetSqlGetConfigList() string {
+func (config *crmDzXfTestConfig) GetSqlGetConfigList() string {
 	return SqlGetCrmDzXfTestTaskConfig
 }
 
-func (config *CrmDzXfTestConfig) GetSqlGetConfig() string {
+func (config *crmDzXfTestConfig) GetSqlGetConfig() string {
 	return SqlGetCrmDzXfTestTaskConfigById
 }
 
-func (config *CrmDzXfTestConfig) getConfigListByRows(rows *sql.Rows) ([]IConfigData, error) {
+func (config *crmDzXfTestConfig) getConfigListByRows(rows *sql.Rows) ([]object.IConfigData, error) {
 	defer func() {
 		_ = rows.Close()
 	}()
 	var fId, fCron, fMsgTitle, fMsgContent, fAddress, fPassport string
 	var fPassportType int
-	resultList := make([]IConfigData, 0)
+	resultList := make([]object.IConfigData, 0)
 	var err error
 	for rows.Next() {
 		err = rows.Scan(&fId, &fCron, &fMsgTitle, &fMsgContent, &fAddress, &fPassport, &fPassportType)
 		if err != nil {
 			break
 		}
-		config := CrmDzXfTestConfigData{
+		config := object.CrmDzXfTestConfigData{
 			FId:           fId,
 			FCron:         fCron,
 			FMsgTitle:     fMsgTitle,

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"github.com/Deansquirrel/goMonitorV3/object"
 )
 
 import log "github.com/Deansquirrel/goToolLog"
@@ -23,62 +24,27 @@ const SqlGetDingTalkRobotById = "" +
 //	" INNER JOIN [DingTalkRobot] B ON A.[FId] = B.[FId]" +
 //	" WHERE A.[FId] in (%s)"
 
-type DingTalkRobotConfig struct {
+type dingTalkRobotNotify struct {
 }
 
-type DingTalkRobotConfigData struct {
-	FId         string
-	FWebHookKey string
-	FAtMobiles  string
-	FIsAtAll    int
-}
-
-func (configData *DingTalkRobotConfigData) GetNotifyId() string {
-	return configData.FId
-}
-
-//func (configData *DingTalkRobotConfigData) IsEqual(d IConfigData) bool {
-//	switch reflect.TypeOf(d).String(){
-//	case "*repository.DingTalkRobotConfigData":
-//		c,ok := d.(*DingTalkRobotConfigData)
-//		if !ok {
-//			return false
-//		}
-//		if configData.FId != c.FId ||
-//			configData.FWebHookKey != c.FWebHookKey ||
-//			configData.FAtMobiles != c.FAtMobiles ||
-//			configData.FIsAtAll != c.FIsAtAll {
-//			return false
-//		}
-//		return true
-//	default:
-//		log.Warn(fmt.Sprintf("expr：DingTalkRobotConfigData"))
-//		return false
-//	}
-//}
-
-//func (config *DingTalkRobotConfig) GetSqlGetConfigList() string {
-//	return SqlGetDingTalkRobot
-//}
-
-func (config *DingTalkRobotConfig) GetSqlGetConfig() string {
+func (config *dingTalkRobotNotify) GetSqlGetConfig() string {
 	return SqlGetDingTalkRobotById
 }
 
-func (config *DingTalkRobotConfig) getConfigListByRows(rows *sql.Rows) ([]INotifyData, error) {
+func (config *dingTalkRobotNotify) getConfigListByRows(rows *sql.Rows) ([]object.INotifyData, error) {
 	defer func() {
 		_ = rows.Close()
 	}()
 	var fId, fWebHookKey, fAtMobiles string
 	var fIsAtAll int
-	resultList := make([]INotifyData, 0)
+	resultList := make([]object.INotifyData, 0)
 	var err error
 	for rows.Next() {
 		err = rows.Scan(&fId, &fWebHookKey, &fAtMobiles, &fIsAtAll)
 		if err != nil {
 			break
 		}
-		config := DingTalkRobotConfigData{
+		config := object.DingTalkRobotNotifyData{
 			FId:         fId,
 			FWebHookKey: fWebHookKey,
 			FAtMobiles:  fAtMobiles,

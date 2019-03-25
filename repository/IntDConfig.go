@@ -2,9 +2,8 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
+	"github.com/Deansquirrel/goMonitorV3/object"
 	log "github.com/Deansquirrel/goToolLog"
-	"reflect"
 )
 
 const SqlGetIntTaskDConfig = "" +
@@ -16,61 +15,30 @@ const SqlGetIntTaskDConfigById = "" +
 	"FROM [IntTaskDConfig] " +
 	"WHERE [FId]=?"
 
-type IntDConfig struct {
+type intDConfig struct {
 }
 
-type IntDConfigData struct {
-	FId        string
-	FMsgSearch string
-}
-
-func (configData *IntDConfigData) GetSpec() string {
-	return ""
-}
-
-func (configData *IntDConfigData) GetConfigId() string {
-	return configData.FId
-}
-
-func (configData *IntDConfigData) IsEqual(d IConfigData) bool {
-	switch reflect.TypeOf(d).String() {
-	case "*repository.IntDConfigData":
-		c, ok := d.(*IntDConfigData)
-		if !ok {
-			return false
-		}
-		if configData.FId != c.FId ||
-			configData.FMsgSearch != c.FMsgSearch {
-			return false
-		}
-		return true
-	default:
-		log.Warn(fmt.Sprintf("expr：IntDConfigData"))
-		return false
-	}
-}
-
-func (idc *IntDConfig) GetSqlGetConfigList() string {
+func (idc *intDConfig) GetSqlGetConfigList() string {
 	return SqlGetIntTaskDConfig
 }
 
-func (idc *IntDConfig) GetSqlGetConfig() string {
+func (idc *intDConfig) GetSqlGetConfig() string {
 	return SqlGetIntTaskDConfigById
 }
 
-func (idc *IntDConfig) getConfigListByRows(rows *sql.Rows) ([]IConfigData, error) {
+func (idc *intDConfig) getConfigListByRows(rows *sql.Rows) ([]object.IConfigData, error) {
 	defer func() {
 		_ = rows.Close()
 	}()
 	var fId, fMsgSearch sql.NullString
-	resultList := make([]IConfigData, 0)
+	resultList := make([]object.IConfigData, 0)
 	var err error
 	for rows.Next() {
 		err := rows.Scan(&fId, &fMsgSearch)
 		if err != nil {
 			break
 		}
-		config := IntDConfigData{}
+		config := object.IntDConfigData{}
 		config.FId = "Null"
 		if fId.Valid {
 			config.FId = fId.String

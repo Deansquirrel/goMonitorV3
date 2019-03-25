@@ -4,10 +4,10 @@ import (
 	"reflect"
 )
 
-type IntTask struct {
+type intTask struct {
 }
 
-func (it *IntTask) getCacheIdList() []string {
+func (it *intTask) getCacheIdList() []string {
 	list := make([]string, 0)
 	for _, c := range GetTaskList() {
 		switch reflect.TypeOf(c.Config).String() {

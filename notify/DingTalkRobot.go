@@ -7,16 +7,16 @@ import (
 	"fmt"
 	"github.com/Deansquirrel/goMonitorV3/global"
 	"github.com/Deansquirrel/goMonitorV3/object"
-	"github.com/Deansquirrel/goMonitorV3/repository"
 	"github.com/Deansquirrel/goToolCommon"
 	log "github.com/Deansquirrel/goToolLog"
 	"io/ioutil"
 	"net/http"
+	"reflect"
 	"strings"
 )
 
 type dingTalkRobot struct {
-	configData *repository.DingTalkRobotConfigData
+	configData *object.DingTalkRobotNotifyData
 }
 
 type dingTalkTextMsg struct {
@@ -26,9 +26,15 @@ type dingTalkTextMsg struct {
 	IsAtAll    bool     `json:"isatall"`
 }
 
-func newDingTalkRobot(configData *repository.DingTalkRobotConfigData) *dingTalkRobot {
+func newDingTalkRobot(notifyData object.INotifyData) *dingTalkRobot {
+	switch reflect.TypeOf(notifyData).String() {
+	case "*object.DingTalkRobotNotifyData":
+
+	default:
+
+	}
 	return &dingTalkRobot{
-		configData: configData,
+		//configData: notifyData.(),
 	}
 }
 

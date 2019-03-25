@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Deansquirrel/goMonitorV3/global"
+	"github.com/Deansquirrel/goMonitorV3/object"
 	"github.com/Deansquirrel/goMonitorV3/repository"
 	"github.com/Deansquirrel/goMonitorV3/worker"
 	"github.com/Deansquirrel/goToolCommon"
@@ -13,21 +14,25 @@ import (
 )
 
 type task struct {
-	iConfig repository.IConfig
-	iHis    repository.IHis
-	iTask   ITask
+	iTask ITask
+	cType global.ConfigType
+	hType global.HisType
 }
 
-func NewTask(iConfig repository.IConfig, iHis repository.IHis, iTask ITask) *task {
+func NewIntTask() *task {
+	return newTask(&intTask{}, global.CInt, global.HInt)
+}
+
+func newTask(iTask ITask, cType global.ConfigType, hType global.HisType) *task {
 	return &task{
-		iConfig: iConfig,
-		iHis:    iHis,
-		iTask:   iTask,
+		iTask: iTask,
+		cType: cType,
+		hType: hType,
 	}
 }
 
 func (t *task) StartTask() error {
-	rep := repository.NewConfigRepository(t.iConfig)
+	rep := repository.NewIntConfigRepository()
 	//获取配置列表
 	list, err := rep.GetConfigList()
 	if err != nil {
@@ -51,7 +56,7 @@ func (t *task) StartTask() error {
 	return nil
 }
 
-func (t *task) addJob(iConfig repository.IConfigData) error {
+func (t *task) addJob(iConfig object.IConfigData) error {
 	w, err := worker.NewWorker(iConfig)
 	if err != nil {
 		AddTask(iConfig.GetConfigId(), &TaskCache{
@@ -153,7 +158,14 @@ func (t *task) refreshConfig() {
 //删除历史数据
 func (t *task) delHisData() {
 	d := time.Duration(1000 * 1000 * 1000 * 60 * 60 * 24 * global.SysConfig.TaskConfig.KeepDays)
-	rep := repository.NewHisRepository(t.iHis)
+	var rep repository.IHisRepository
+	switch t.hType {
+	case global.HInt:
+		rep = repository.NewIntHisRepository()
+	default:
+		log.Error("未预知的hType")
+		return
+	}
 	err := rep.ClearHis(d)
 	if err != nil {
 		log.Error("删除历史数据时遇到错误：" + err.Error())
@@ -161,16 +173,25 @@ func (t *task) delHisData() {
 }
 
 func (t *task) refreshConfigWorker() error {
-	rep := repository.NewConfigRepository(t.iConfig)
+	var rep repository.IConfigRepository
+	switch t.cType {
+	case global.CInt:
+		rep = repository.NewIntConfigRepository()
+	default:
+		errMsg := "未预知的cType"
+		log.Error(errMsg)
+		return errors.New(errMsg)
+	}
+
 	//获取配置列表
 	list, err := rep.GetConfigList()
 	if err != nil {
 		return err
 	}
 	idList := make([]string, 0)
-	idMap := make(map[string]repository.IConfigData, 0)
+	idMap := make(map[string]object.IConfigData, 0)
 	for _, iConfig := range list {
-		config, ok := iConfig.(repository.IConfigData)
+		config, ok := iConfig.(object.IConfigData)
 		if !ok {
 			return errors.New("不是有效的IConfigData")
 		}

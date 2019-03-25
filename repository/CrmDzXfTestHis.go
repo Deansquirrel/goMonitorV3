@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"github.com/Deansquirrel/goMonitorV3/object"
 	"time"
 )
 import log "github.com/Deansquirrel/goToolLog"
@@ -34,57 +35,48 @@ const SqlDelCrmDzXfTestTaskHis = "" +
 	"DELETE FROM CrmDzXfTestTaskHis" +
 	" WHERE FOprTime < ?"
 
-type CrmDzXfTestHis struct {
+type crmDzXfTestHis struct {
 }
 
-type CrmDzXfTestHisData struct {
-	FId       string
-	FConfigId string
-	FUseTime  int
-	FHttpCode int
-	FContent  string
-	FOprTime  time.Time
-}
-
-func (config *CrmDzXfTestHis) GetSqlHisList() string {
+func (config *crmDzXfTestHis) GetSqlHisList() string {
 	return SqlGetCrmDzXfTestTaskHis
 }
 
-func (config *CrmDzXfTestHis) GetSqlHisById() string {
+func (config *crmDzXfTestHis) GetSqlHisById() string {
 	return SqlGetCrmDzXfTestTaskHisById
 }
 
-func (config *CrmDzXfTestHis) GetSqlHisByConfigId() string {
+func (config *crmDzXfTestHis) GetSqlHisByConfigId() string {
 	return SqlGetCrmDzXfTestTaskHisByConfigId
 }
 
-func (config *CrmDzXfTestHis) GetSqlHisByTime() string {
+func (config *crmDzXfTestHis) GetSqlHisByTime() string {
 	return SqlGetCrmDzXfTestTaskHisByTime
 }
 
-func (config *CrmDzXfTestHis) GetSqlSetHis() string {
+func (config *crmDzXfTestHis) GetSqlSetHis() string {
 	return SqlSetCrmDzXfTestTaskHis
 }
 
-func (config *CrmDzXfTestHis) GetSqlClearHis() string {
+func (config *crmDzXfTestHis) GetSqlClearHis() string {
 	return SqlDelCrmDzXfTestTaskHis
 }
 
-func (config *CrmDzXfTestHis) getHisListByRows(rows *sql.Rows) ([]IHisData, error) {
+func (config *crmDzXfTestHis) getHisListByRows(rows *sql.Rows) ([]object.IHisData, error) {
 	defer func() {
 		_ = rows.Close()
 	}()
 	var fId, fConfigId, fContent string
 	var fUseTime, fHttpCode int
 	var fOprTime time.Time
-	resultList := make([]IHisData, 0)
+	resultList := make([]object.IHisData, 0)
 	var err error
 	for rows.Next() {
 		err = rows.Scan(&fId, &fConfigId, &fUseTime, &fHttpCode, &fContent, &fOprTime)
 		if err != nil {
 			break
 		}
-		config := CrmDzXfTestHisData{
+		config := object.CrmDzXfTestHisData{
 			FId:       fId,
 			FConfigId: fConfigId,
 			FUseTime:  fUseTime,
@@ -105,9 +97,9 @@ func (config *CrmDzXfTestHis) getHisListByRows(rows *sql.Rows) ([]IHisData, erro
 	return resultList, nil
 }
 
-func (config *CrmDzXfTestHis) getHisSetArgs(data interface{}) ([]interface{}, error) {
+func (config *crmDzXfTestHis) getHisSetArgs(data object.IHisData) ([]interface{}, error) {
 	switch f := data.(type) {
-	case CrmDzXfTestHisData:
+	case object.CrmDzXfTestHisData:
 		result := make([]interface{}, 0)
 		result = append(result, f.FId)
 		result = append(result, f.FConfigId)
@@ -116,6 +108,6 @@ func (config *CrmDzXfTestHis) getHisSetArgs(data interface{}) ([]interface{}, er
 		result = append(result, f.FContent)
 		return result, nil
 	default:
-		return nil, errors.New("CrmDzXfTestHis getHisSetArgs 参数类型错误")
+		return nil, errors.New("crmDzXfTestHis getHisSetArgs 参数类型错误")
 	}
 }

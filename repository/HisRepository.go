@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/Deansquirrel/goMonitorV3/object"
 	"github.com/Deansquirrel/goToolCommon"
 	"time"
 )
@@ -11,13 +12,25 @@ type hisRepository struct {
 	His IHis
 }
 
-func NewHisRepository(his IHis) *hisRepository {
+func NewIntHisRepository() *hisRepository {
+	return newHisRepository(&intHis{})
+}
+
+func NewWebStateHisRepository() *hisRepository {
+	return newHisRepository(&webStateHis{})
+}
+
+func NewCrmDzXfTestHisRepository() *hisRepository {
+	return newHisRepository(&crmDzXfTestHis{})
+}
+
+func newHisRepository(his IHis) *hisRepository {
 	return &hisRepository{
 		His: his,
 	}
 }
 
-func (hr *hisRepository) GetHisList() ([]IHisData, error) {
+func (hr *hisRepository) GetHisList() ([]object.IHisData, error) {
 	rows, err := comm.getRowsBySQL(hr.His.GetSqlHisList())
 	if err != nil {
 		log.Error(err.Error())
@@ -26,7 +39,7 @@ func (hr *hisRepository) GetHisList() ([]IHisData, error) {
 	return hr.His.getHisListByRows(rows)
 }
 
-func (hr *hisRepository) GetHisById(id string) (IHisData, error) {
+func (hr *hisRepository) GetHisById(id string) (object.IHisData, error) {
 	rows, err := comm.getRowsBySQL(hr.His.GetSqlHisById(), id)
 	if err != nil {
 		log.Error(err.Error())
@@ -35,7 +48,7 @@ func (hr *hisRepository) GetHisById(id string) (IHisData, error) {
 	return hr.His.getHisListByRows(rows)
 }
 
-func (hr *hisRepository) GetHisByConfigId(id string) ([]IHisData, error) {
+func (hr *hisRepository) GetHisByConfigId(id string) ([]object.IHisData, error) {
 	rows, err := comm.getRowsBySQL(hr.His.GetSqlHisByConfigId(), id)
 	if err != nil {
 		log.Error(err.Error())
@@ -44,7 +57,7 @@ func (hr *hisRepository) GetHisByConfigId(id string) ([]IHisData, error) {
 	return hr.His.getHisListByRows(rows)
 }
 
-func (hr *hisRepository) GetHisByTime(begTime, endTime time.Time) ([]IHisData, error) {
+func (hr *hisRepository) GetHisByTime(begTime, endTime time.Time) ([]object.IHisData, error) {
 	rows, err := comm.getRowsBySQL(hr.His.GetSqlHisByTime(), begTime, endTime)
 	if err != nil {
 		log.Error(err.Error())
@@ -53,7 +66,7 @@ func (hr *hisRepository) GetHisByTime(begTime, endTime time.Time) ([]IHisData, e
 	return hr.His.getHisListByRows(rows)
 }
 
-func (hr *hisRepository) SetHis(data IHisData) error {
+func (hr *hisRepository) SetHis(data object.IHisData) error {
 	args, err := hr.His.getHisSetArgs(data)
 	if err != nil {
 		return err

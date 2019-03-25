@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"github.com/Deansquirrel/goMonitorV3/object"
 	"reflect"
 	"time"
 )
@@ -40,55 +41,47 @@ const SqlDelIntTaskHisByOprTime = "" +
 	"DELETE FROM [IntTaskHis]" +
 	" WHERE [FOprTime] < ?"
 
-type IntHis struct {
+type intHis struct {
 }
 
-type IntHisData struct {
-	FId       string
-	FConfigId string
-	FNum      int
-	FContent  string
-	FOprTime  time.Time
-}
-
-func (ih *IntHis) GetSqlHisList() string {
+func (ih *intHis) GetSqlHisList() string {
 	return SqlGetIntTaskHis
 }
 
-func (ih *IntHis) GetSqlHisById() string {
+func (ih *intHis) GetSqlHisById() string {
 	return SqlGetIntTaskHisById
 }
 
-func (ih *IntHis) GetSqlHisByConfigId() string {
+func (ih *intHis) GetSqlHisByConfigId() string {
 	return SqlGetIntTaskHisByConfigId
 }
 
-func (ih *IntHis) GetSqlHisByTime() string {
+func (ih *intHis) GetSqlHisByTime() string {
 	return SqlGetIntTaskHisByTime
 }
 
-func (ih *IntHis) GetSqlSetHis() string {
+func (ih *intHis) GetSqlSetHis() string {
 	return SqlSetIntTaskHis
 }
-func (ih *IntHis) GetSqlClearHis() string {
+func (ih *intHis) GetSqlClearHis() string {
 	return SqlDelIntTaskHisByOprTime
 }
 
-func (ih *IntHis) getHisListByRows(rows *sql.Rows) ([]IHisData, error) {
+func (ih *intHis) getHisListByRows(rows *sql.Rows) ([]object.IHisData, error) {
 	defer func() {
 		_ = rows.Close()
 	}()
 	var fId, fConfigId, fContent string
 	var fNum int
 	var fOprTime time.Time
-	resultList := make([]IHisData, 0)
+	resultList := make([]object.IHisData, 0)
 	var err error
 	for rows.Next() {
 		err = rows.Scan(&fId, &fConfigId, &fNum, &fContent, &fOprTime)
 		if err != nil {
 			break
 		}
-		config := IntHisData{
+		config := object.IntHisData{
 			FId:       fId,
 			FConfigId: fConfigId,
 			FNum:      fNum,
@@ -108,10 +101,10 @@ func (ih *IntHis) getHisListByRows(rows *sql.Rows) ([]IHisData, error) {
 	return resultList, nil
 }
 
-func (ih *IntHis) getHisSetArgs(data IHisData) ([]interface{}, error) {
+func (ih *intHis) getHisSetArgs(data object.IHisData) ([]interface{}, error) {
 	switch reflect.TypeOf(data).String() {
-	case "*repository.IntHisData":
-		iHisData, ok := data.(*IntHisData)
+	case "*object.intHisData":
+		iHisData, ok := data.(*object.IntHisData)
 		if ok {
 			result := make([]interface{}, 0)
 			result = append(result, iHisData.FId)
@@ -120,9 +113,9 @@ func (ih *IntHis) getHisSetArgs(data IHisData) ([]interface{}, error) {
 			result = append(result, iHisData.FContent)
 			return result, nil
 		} else {
-			return nil, errors.New("强制类型转换失败[IntHisData]")
+			return nil, errors.New("强制类型转换失败[intHisData]")
 		}
 	default:
-		return nil, errors.New("IntHis getHisSetArgs 参数类型错误")
+		return nil, errors.New("intHis getHisSetArgs 参数类型错误")
 	}
 }

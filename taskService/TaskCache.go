@@ -2,7 +2,7 @@ package taskService
 
 import (
 	"fmt"
-	"github.com/Deansquirrel/goMonitorV3/repository"
+	"github.com/Deansquirrel/goMonitorV3/object"
 	"github.com/Deansquirrel/goToolCommon"
 	log "github.com/Deansquirrel/goToolLog"
 	"github.com/robfig/cron"
@@ -18,7 +18,7 @@ func init() {
 }
 
 type TaskCache struct {
-	Config    repository.IConfigData
+	Config    object.IConfigData
 	Cron      *cron.Cron
 	IsRunning bool
 }

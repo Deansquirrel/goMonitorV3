@@ -2,9 +2,8 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
+	"github.com/Deansquirrel/goMonitorV3/object"
 	log "github.com/Deansquirrel/goToolLog"
-	"reflect"
 )
 
 const SqlGetIntTaskConfig = "" +
@@ -22,75 +21,24 @@ const SqlGetIntTaskConfigById = "" +
 	" INNER JOIN [IntTaskConfig] B ON A.[FId] = B.[FId]" +
 	" WHERE B.[FId]=?"
 
-type IntConfig struct {
+type intConfig struct {
 }
 
-type IntConfigData struct {
-	FId         string
-	FServer     string
-	FPort       int
-	FDbName     string
-	FDbUser     string
-	FDbPwd      string
-	FSearch     string
-	FCron       string
-	FCheckMax   int
-	FCheckMin   int
-	FMsgTitle   string
-	FMsgContent string
-}
-
-func (configData *IntConfigData) GetSpec() string {
-	return configData.FCron
-}
-
-func (configData *IntConfigData) GetConfigId() string {
-	return configData.FId
-}
-
-func (configData *IntConfigData) IsEqual(d IConfigData) bool {
-	switch reflect.TypeOf(d).String() {
-	case "*repository.IntConfigData":
-		c, ok := d.(*IntConfigData)
-		if !ok {
-			return false
-		}
-		if configData.FId != c.FId ||
-			configData.FServer != c.FServer ||
-			configData.FPort != c.FPort ||
-			configData.FDbName != c.FDbName ||
-			configData.FDbUser != c.FDbUser ||
-			configData.FDbPwd != c.FDbPwd ||
-			configData.FSearch != c.FSearch ||
-			configData.FCron != c.FCron ||
-			configData.FCheckMax != c.FCheckMax ||
-			configData.FCheckMin != c.FCheckMin ||
-			configData.FMsgTitle != c.FMsgTitle ||
-			configData.FMsgContent != c.FMsgContent {
-			return false
-		}
-		return true
-	default:
-		log.Warn(fmt.Sprintf("expr：IntConfigData"))
-		return false
-	}
-}
-
-func (ic *IntConfig) GetSqlGetConfigList() string {
+func (ic *intConfig) GetSqlGetConfigList() string {
 	return SqlGetIntTaskConfig
 }
 
-func (ic *IntConfig) GetSqlGetConfig() string {
+func (ic *intConfig) GetSqlGetConfig() string {
 	return SqlGetIntTaskConfigById
 }
 
-func (ic *IntConfig) getConfigListByRows(rows *sql.Rows) ([]IConfigData, error) {
+func (ic *intConfig) getConfigListByRows(rows *sql.Rows) ([]object.IConfigData, error) {
 	defer func() {
 		_ = rows.Close()
 	}()
 	var fId, fServer, fDbName, fDbUser, fDbPwd, fSearch, fCron, fMsgTitle, fMsgContent string
 	var fPort, fCheckMax, fCheckMin int
-	resultList := make([]IConfigData, 0)
+	resultList := make([]object.IConfigData, 0)
 	var err error
 	for rows.Next() {
 		err = rows.Scan(
@@ -100,7 +48,7 @@ func (ic *IntConfig) getConfigListByRows(rows *sql.Rows) ([]IConfigData, error) 
 		if err != nil {
 			break
 		}
-		config := IntConfigData{
+		config := object.IntConfigData{
 			FId:         fId,
 			FServer:     fServer,
 			FPort:       fPort,

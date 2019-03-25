@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"github.com/Deansquirrel/goMonitorV3/object"
 )
 
 type IHis interface {
@@ -12,9 +13,6 @@ type IHis interface {
 	GetSqlSetHis() string
 	GetSqlClearHis() string
 
-	getHisListByRows(rows *sql.Rows) ([]IHisData, error)
-	getHisSetArgs(data IHisData) ([]interface{}, error)
-}
-
-type IHisData interface {
+	getHisListByRows(rows *sql.Rows) ([]object.IHisData, error)
+	getHisSetArgs(data object.IHisData) ([]interface{}, error)
 }

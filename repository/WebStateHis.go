@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"github.com/Deansquirrel/goMonitorV3/object"
 	"time"
 )
 import log "github.com/Deansquirrel/goToolLog"
@@ -30,57 +31,48 @@ const SqlDelWebStateTaskHis = "" +
 	"DELETE FROM WebStateTaskHis" +
 	" WHERE FOprTime < ?"
 
-type WebStateHis struct {
+type webStateHis struct {
 }
 
-type WebStateHisData struct {
-	FId       string
-	FConfigId string
-	FUseTime  int
-	FHttpCode int
-	FContent  string
-	FOprTime  time.Time
-}
-
-func (wsh *WebStateHis) GetSqlHisList() string {
+func (wsh *webStateHis) GetSqlHisList() string {
 	return SqlGetWebStateTaskHis
 }
 
-func (wsh *WebStateHis) GetSqlHisById() string {
+func (wsh *webStateHis) GetSqlHisById() string {
 	return SqlGetWebStateTaskHisById
 }
 
-func (wsh *WebStateHis) GetSqlHisByConfigId() string {
+func (wsh *webStateHis) GetSqlHisByConfigId() string {
 	return SqlGetWebStateTaskHisByConfigId
 }
 
-func (wsh *WebStateHis) GetSqlHisByTime() string {
+func (wsh *webStateHis) GetSqlHisByTime() string {
 	return SqlGetWebStateTaskHisByTime
 }
 
-func (wsh *WebStateHis) GetSqlSetHis() string {
+func (wsh *webStateHis) GetSqlSetHis() string {
 	return SqlSetWebStateTaskHis
 }
 
-func (wsh *WebStateHis) GetSqlClearHis() string {
+func (wsh *webStateHis) GetSqlClearHis() string {
 	return SqlDelWebStateTaskHis
 }
 
-func (wsh *WebStateHis) getHisListByRows(rows *sql.Rows) ([]IHisData, error) {
+func (wsh *webStateHis) getHisListByRows(rows *sql.Rows) ([]object.IHisData, error) {
 	defer func() {
 		_ = rows.Close()
 	}()
 	var fId, fConfigId, fContent string
 	var fUseTime, fHttpCode int
 	var fOprTime time.Time
-	resultList := make([]IHisData, 0)
+	resultList := make([]object.IHisData, 0)
 	var err error
 	for rows.Next() {
 		err = rows.Scan(&fId, &fConfigId, &fUseTime, &fHttpCode, &fContent, &fOprTime)
 		if err != nil {
 			break
 		}
-		config := WebStateHisData{
+		config := object.WebStateHisData{
 			FId:       fId,
 			FConfigId: fConfigId,
 			FUseTime:  fUseTime,
@@ -101,9 +93,9 @@ func (wsh *WebStateHis) getHisListByRows(rows *sql.Rows) ([]IHisData, error) {
 	return resultList, nil
 }
 
-func (wsh *WebStateHis) getHisSetArgs(data interface{}) ([]interface{}, error) {
+func (wsh *webStateHis) getHisSetArgs(data object.IHisData) ([]interface{}, error) {
 	switch f := data.(type) {
-	case WebStateHisData:
+	case object.WebStateHisData:
 		result := make([]interface{}, 0)
 		result = append(result, f.FId)
 		result = append(result, f.FConfigId)
@@ -112,6 +104,6 @@ func (wsh *WebStateHis) getHisSetArgs(data interface{}) ([]interface{}, error) {
 		result = append(result, f.FContent)
 		return result, nil
 	default:
-		return nil, errors.New("WebStateHis getHisSetArgs 参数类型错误")
+		return nil, errors.New("webStateHis getHisSetArgs 参数类型错误")
 	}
 }

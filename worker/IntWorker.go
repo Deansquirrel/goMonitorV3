@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/Deansquirrel/goMonitorV3/object"
 	"github.com/Deansquirrel/goMonitorV3/repository"
 	"github.com/Deansquirrel/goToolCommon"
 	log "github.com/Deansquirrel/goToolLog"
@@ -15,16 +16,16 @@ import (
 )
 
 type intWorker struct {
-	intConfigData *repository.IntConfigData
+	intConfigData *object.IntConfigData
 }
 
-func newIntWorker(intConfigData *repository.IntConfigData) *intWorker {
+func newIntWorker(intConfigData *object.IntConfigData) *intWorker {
 	return &intWorker{
 		intConfigData: intConfigData,
 	}
 }
 
-func (iw *intWorker) GetMsg() (string, repository.IHisData) {
+func (iw *intWorker) GetMsg() (string, object.IHisData) {
 	comm := common{}
 	if iw.intConfigData == nil {
 		msg := comm.getMsg(iw.intConfigData.FMsgTitle, "配置内容为空")
@@ -54,8 +55,8 @@ func (iw *intWorker) GetMsg() (string, repository.IHisData) {
 	return msg, iw.getHisData(num, msg)
 }
 
-func (iw *intWorker) getHisData(num int, msg string) repository.IHisData {
-	return &repository.IntHisData{
+func (iw *intWorker) getHisData(num int, msg string) object.IHisData {
+	return &object.IntHisData{
 		FId:       strings.ToUpper(goToolCommon.Guid()),
 		FConfigId: iw.intConfigData.FId,
 		FNum:      num,
@@ -72,7 +73,7 @@ func (iw *intWorker) formatMsg(msg string) string {
 }
 
 func (iw *intWorker) getDMsg() string {
-	rep := repository.NewConfigRepository(&repository.IntDConfig{})
+	rep := repository.NewIntDConfigRepository()
 	dConfig, err := rep.GetConfig(iw.intConfigData.FId)
 	if err != nil {
 		log.Error(fmt.Sprintf("获取明细配置时遇到错误：%s，查询ID为：%s", err.Error(), iw.intConfigData.FId))
@@ -84,7 +85,7 @@ func (iw *intWorker) getDMsg() string {
 	}
 	switch reflect.TypeOf(dConfig).String() {
 	case "*repository.IntDConfigData":
-		c, ok := dConfig.(*repository.IntDConfigData)
+		c, ok := dConfig.(*object.IntDConfigData)
 		if ok {
 			return iw.getSingleDMsg(c.FMsgSearch)
 		} else {
@@ -147,11 +148,11 @@ func (iw *intWorker) getSingleDMsg(search string) string {
 	return result
 }
 
-func (iw *intWorker) SaveSearchResult(data repository.IHisData) error {
+func (iw *intWorker) SaveSearchResult(data object.IHisData) error {
 	switch reflect.TypeOf(data).String() {
-	case "*repository.IntHisData":
-		rep := repository.NewHisRepository(&repository.IntHis{})
-		iHisData, ok := data.(*repository.IntHisData)
+	case "*object.IntHisData":
+		rep := repository.NewIntHisRepository()
+		iHisData, ok := data.(*object.IntHisData)
 		if ok {
 			err := rep.SetHis(iHisData)
 			if err != nil {
